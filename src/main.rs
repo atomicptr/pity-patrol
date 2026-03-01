@@ -1,4 +1,8 @@
+use std::{env, time::Duration};
+
 use anyhow::Result;
+use rand::RngExt;
+use tokio::time::sleep;
 use tracing_subscriber::EnvFilter;
 
 use crate::{
@@ -19,17 +23,26 @@ async fn main() -> Result<()> {
             .init();
     } else {
         tracing_subscriber::fmt()
-            .with_env_filter(EnvFilter::new("pity-patrol"))
+            .with_env_filter(
+                EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")),
+            )
             .init();
     }
 
     tracing::info!("Pity Patrol v{} started!", APP_VERSION);
+
+    assert!(
+        !(env::var("GITHUB_ACTIONS").is_ok() || env::var("GITLAB_CI").is_ok()),
+        "Unauthorized environment."
+    );
 
     let config = Config::from_env()?;
 
     tracing::debug!("Config: {:?}", config);
 
     tracing::info!("{} account/s configured", config.accounts.len());
+
+    let mut rng = rand::rng();
 
     for (index, account) in config.accounts.iter().enumerate() {
         let identifier = if let Some(identifier) = &account.identifier {
@@ -56,6 +69,10 @@ async fn main() -> Result<()> {
                 tracing::error!("{} could not claim rewards because: {:?}", identifier, err);
             }
         }
+
+        // sleep a random time between querying accounts
+        let delay = rng.random_range(500..2000);
+        sleep(Duration::from_millis(delay)).await;
     }
 
     Ok(())

@@ -5,15 +5,9 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
+    #[serde(rename = "user-agent")]
     pub user_agent: Option<String>,
-    pub language: Option<Language>,
     pub accounts: Vec<Account>,
-}
-
-#[derive(Debug, Deserialize)]
-pub enum Language {
-    #[serde(rename = "en")]
-    English,
 }
 
 #[derive(Debug, Deserialize)]
