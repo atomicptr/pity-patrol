@@ -34,10 +34,15 @@ func Run(cfg *config.Config) {
 
 		cronString := fmt.Sprintf("%s%d %d * * *", tzString, r.Minute, r.Hour)
 
-		c.AddFunc(cronString, func() {
+		_, err := c.AddFunc(cronString, func() {
 			runner.SleepMs(5000, 60_000) // sleep 5s - 60s
 			runner.RunAccount(cfg, index, &account)
 		})
+
+		if err != nil {
+			log.Panicf("Could not create cron job for %s (Cron: `%s`) because: %s", runner.AccountIdentifier(&account, index), cronString, err)
+			return
+		}
 
 		if cfg.DebugMode {
 			ident := runner.AccountIdentifier(&account, index)
