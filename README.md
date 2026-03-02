@@ -18,14 +18,6 @@ $ docker run --rm -v /path/to/config/dir:/app/config quay.io/atomicptr/pity-patr
 
 ## Configuration
 
-Pity Patrol reads a TOML config file located in
-
-- Linux: ``$XDG_CONFIG_HOME/.config/pity-patrol/config.toml``
-- MacOS: ``$HOME/Library/Application Support/pity-patrol/config.toml``
-- Windows: ``%APPDATA%\\pity-patrol\\config.toml``
-
-Or a path defined by the env var ``PITY_PATROL_CONFIG``
-
 Here is a list of all configuration options
 
 ```toml
@@ -47,6 +39,22 @@ sk-game-role = "xxxxx"
 # Only for scheduler, delays the scheduler execution for this account by 30 minutes
 checkin-offset = 30
 ```
+
+### Configuration Location
+
+#### Docker
+
+In Docker the configuration file is mapped to ``/app/config/config.toml``
+
+#### System
+
+Pity Patrol reads a TOML config file located in
+
+- Linux: ``$XDG_CONFIG_HOME/.config/pity-patrol/config.toml``
+- MacOS: ``$HOME/Library/Application Support/pity-patrol/config.toml``
+- Windows: ``%APPDATA%\\pity-patrol\\config.toml``
+
+Or a path defined by the env var ``PITY_PATROL_CONFIG``
 
 ## Getting Credentials
 
