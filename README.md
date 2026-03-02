@@ -2,8 +2,8 @@
 
 A tool to help you claim web based daily login rewards for your favorite gacha games
 
-Main Repo: [github.com/atomicptr/pity-patrol](https://github.com/atomicptr/pity-patrol)
-Alt Repo: [gitlab.com/atomicptr/pity-patrol](https://gitlab.com/atomicptr/pity-patrol)
+- Main Repo: [github.com/atomicptr/pity-patrol](https://github.com/atomicptr/pity-patrol)
+- Alt Repo: [gitlab.com/atomicptr/pity-patrol](https://gitlab.com/atomicptr/pity-patrol)
 
 **NOTE**: This isn't intended for use inside GitHub Actions or GitLab CI. Using it there violates the TOS, so don't.
 
@@ -88,8 +88,6 @@ Or a path defined by the env var ``PITY_PATROL_CONFIG``
 
 
 ### Hoyo Games
-
-## Usage
 
 Instructions for Firefox <img src="https://i.imgur.com/RWoc1CC.png" align="right" width="300" height="190" />
 
