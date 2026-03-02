@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,11 +17,11 @@ import (
 )
 
 const (
-	BaseURL    = "https://zonai.skport.com"
-	ClaimURL   = "/web/v1/game/endfield/attendance"
-	RefreshURL = "/web/v1/auth/refresh"
-	Platform   = "3"
-	VName      = "1.0.0"
+	baseURL    = "https://zonai.skport.com"
+	claimURL   = "/web/v1/game/endfield/attendance"
+	refreshUrl = "/web/v1/auth/refresh"
+	platform   = "3"
+	vName      = "1.0.0"
 )
 
 func Claim(cfg *config.Config, account *config.Account) (bool, error) {
@@ -34,9 +35,9 @@ func Claim(cfg *config.Config, account *config.Account) (bool, error) {
 	token, err := refreshToken(&client, account.Credentials, ua)
 
 	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-	sign := generateSign(ClaimURL, "", timestamp, token)
+	sign := generateSign(claimURL, "", timestamp, token)
 
-	req, err := http.NewRequest("POST", BaseURL+ClaimURL, nil)
+	req, err := http.NewRequest("POST", baseURL+claimURL, nil)
 	if err != nil {
 		return false, err
 	}
@@ -44,12 +45,16 @@ func Claim(cfg *config.Config, account *config.Account) (bool, error) {
 	req.Header.Set("User-Agent", ua)
 	req.Header.Set("cred", account.Credentials)
 	req.Header.Set("sk-game-role", account.SkGameRole)
-	req.Header.Set("platform", Platform)
-	req.Header.Set("vName", VName)
+	req.Header.Set("platform", platform)
+	req.Header.Set("vName", vName)
 	req.Header.Set("timestamp", timestamp)
 	req.Header.Set("sign", sign)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("sk-language", "en")
+
+	if cfg.DebugMode {
+		log.Printf("[DEBUG] POST %s", baseURL+claimURL)
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -76,11 +81,11 @@ func Claim(cfg *config.Config, account *config.Account) (bool, error) {
 }
 
 func refreshToken(client *http.Client, credentials, ua string) (string, error) {
-	req, _ := http.NewRequest("GET", BaseURL+RefreshURL, nil)
+	req, _ := http.NewRequest("GET", baseURL+refreshUrl, nil)
 	req.Header.Set("User-Agent", ua)
 	req.Header.Set("cred", credentials)
-	req.Header.Set("platform", Platform)
-	req.Header.Set("vName", VName)
+	req.Header.Set("platform", platform)
+	req.Header.Set("vName", vName)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -109,7 +114,7 @@ func refreshToken(client *http.Client, credentials, ua string) (string, error) {
 
 func generateSign(path, body, timestamp, token string) string {
 	headerJSON := fmt.Sprintf(`{"platform":"%s","timestamp":"%s","dId":"","vName":"%s"}`,
-		Platform, timestamp, VName)
+		platform, timestamp, vName)
 
 	dataToSign := path + body + timestamp + headerJSON
 

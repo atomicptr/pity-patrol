@@ -25,7 +25,7 @@ func (r *ResetTime) Add(minutes int) {
 
 func ResetTimeByAccountType(t string) ResetTime {
 	switch t {
-	case "endfield":
+	case "endfield", "genshin", "starrail", "honkai", "zzz", "themis":
 		return ResetTime{
 			Hour:     0,
 			Minute:   0,

@@ -48,11 +48,10 @@ func AccountIdentifier(account *config.Account, index int) string {
 }
 
 func SleepMs(from, to int) {
-	if from <= to {
-		panic("SleepMs: `from` must be bigger than `to`")
+	if to <= from {
+		log.Panicf("SleepMs: `to` (%d) must be bigger than `from` (%d)\n", to, from)
 	}
 
 	delay := from + rand.Intn(to-from)
 	time.Sleep(time.Duration(delay) * time.Millisecond)
-
 }

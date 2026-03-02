@@ -23,7 +23,7 @@ type Account struct {
 
 func isValidGameType(t string) bool {
 	switch t {
-	case "endfield":
+	case "endfield", "genshin", "starrail", "honkai", "zzz", "themis":
 		return true
 	default:
 		return false
@@ -36,12 +36,25 @@ type Game struct {
 	// Endfield
 	Credentials string `toml:"credentials"`
 	SkGameRole  string `toml:"sk-game-role"`
+
+	// Hoyo Games
+	Cookie string `toml:"cookie"`
 }
 
 func (a *Account) GameName() string {
 	switch a.Game.Type {
 	case "endfield":
 		return "Arknights: Endfield"
+	case "genshin":
+		return "Genshin Impact"
+	case "starrail":
+		return "Honkai: Star Rail"
+	case "honkai":
+		return "Honkai Impact 3rd"
+	case "zzz":
+		return "Zenless Zone Zero"
+	case "themis":
+		return "Tears of Thermis"
 	default:
 		panic(fmt.Sprintf("Unknown game type: %s", a.Game.Type))
 	}
