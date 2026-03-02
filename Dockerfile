@@ -28,6 +28,8 @@ ENV PITY_PATROL_CONFIG="/app/config/config.toml"
 
 WORKDIR /app
 
+RUN apk add --no-cache tzdata
+
 RUN mkdir -p /app/config
 COPY --from=builder /app/pity-patrol /app/pity-patrol
 
