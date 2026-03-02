@@ -1,2 +1,4 @@
 github.com/BurntSushi/toml v1.6.0 h1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk=
 github.com/BurntSushi/toml v1.6.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
+github.com/netresearch/go-cron v0.13.0 h1:rWDtkLPykLWm9Zny612io1N4HzoVsDJCuDLziND37sQ=
+github.com/netresearch/go-cron v0.13.0/go.mod h1:oRPUA7fHC/ul86n+d3SdUD54cEuHIuCLiFJCua5a5/E=

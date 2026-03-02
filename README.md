@@ -30,6 +30,7 @@ Here is a list of all configuration options
 
 ```toml
 user-agent = "Pity Patrol" # Ability to set a custom user agent, keep empty for default (Chrome)
+enable-scheduler = false   # Instead of running pity patrol just once, run the jobs automatically at their reset times
 
 # and the most important thing you can add as many accounts as you like
 [[accounts]]
@@ -42,6 +43,9 @@ identifier = "My Endfield Account"
 # Read "Getting Credentias > Arknights: Endfield" to see how to get these
 credentials = "xxxxx"
 sk-game-role = "xxxxx"
+
+# Only for scheduler, delays the scheduler execution for this account by 30 minutes
+checkin-offset = 30
 ```
 
 ## Getting Credentials

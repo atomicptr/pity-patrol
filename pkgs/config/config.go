@@ -9,13 +9,15 @@ import (
 )
 
 type Config struct {
-	UserAgent string    `toml:"user-agent,omitempty"`
-	DebugMode bool      `toml:"debug-mode,omitempty"`
-	Accounts  []Account `toml:"accounts"`
+	UserAgent       string    `toml:"user-agent,omitempty"`
+	EnableScheduler bool      `toml:"enable-scheduler,omitempty"`
+	DebugMode       bool      `toml:"debug-mode,omitempty"`
+	Accounts        []Account `toml:"accounts"`
 }
 
 type Account struct {
-	Identifier string `toml:"identifier,omitempty"`
+	Identifier    string `toml:"identifier,omitempty"`
+	CheckinOffset int    `toml:"checkin-offset,omitempty"`
 	Game
 }
 
