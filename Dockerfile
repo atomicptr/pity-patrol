@@ -2,6 +2,8 @@ FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
 
 ARG TARGETOS
 ARG TARGETARCH
+ARG VERSION
+ARG GIT_COMMIT
 
 WORKDIR /app
 
@@ -10,7 +12,15 @@ RUN go mod download
 
 COPY . /app
 
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags="-s -w" -o pity-patrol cmd/pity-patrol/main.go
+RUN CGO_ENABLED=0 \
+    GOOS=$TARGETOS \
+    GOARCH=$TARGETARCH \
+    go build \
+        -ldflags="\
+            -s -w \
+            -X 'github.com/atomicptr/pity-patrol/pkgs/meta.Version=${VERSION}' \
+            -X 'github.com/atomicptr/pity-patrol/pkgs/meta.GitCommit=${GIT_COMMIT}'" \
+        -o pity-patrol cmd/pity-patrol/main.go
 
 FROM alpine:latest
 
