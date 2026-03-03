@@ -25,6 +25,49 @@ const (
 	vName      = "1.0.0"
 )
 
+type attendanceResource struct {
+	Id    string `json:"id"`
+	Count int    `json:"count"`
+	Name  string `json:"name"`
+	Icon  string `json:"icon"`
+}
+
+type attendanceResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
+		Calendar []struct {
+			AwardId   string `json:"awardId"`
+			Available bool   `json:"available"`
+			Done      bool   `json:"done"`
+		} `json:"calendar"`
+		ResourceInfoMap map[string]attendanceResource
+	} `json:"data"`
+}
+
+func (res *attendanceResponse) findReward() *attendanceResource {
+	var lastId string
+
+	for _, entry := range res.Data.Calendar {
+		if !entry.Done {
+			break
+		}
+
+		lastId = entry.AwardId
+	}
+
+	if lastId == "" {
+		return nil
+	}
+
+	resource, ok := res.Data.ResourceInfoMap[lastId]
+	if !ok {
+		return nil
+	}
+
+	return &resource
+}
+
 func Claim(cfg *config.Config, account *config.Account) (*report.Report, error) {
 	ua := cfg.UserAgent
 	if ua == "" {
@@ -35,53 +78,39 @@ func Claim(cfg *config.Config, account *config.Account) (*report.Report, error) 
 
 	token, err := refreshToken(&client, account.Credentials, ua)
 
-	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-	sign := generateSign(claimURL, "", timestamp, token)
-
-	req, err := http.NewRequest("POST", baseURL+claimURL, nil)
+	resp, err := requestAttendance(&client, "POST", ua, token, cfg, account)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("User-Agent", ua)
-	req.Header.Set("cred", account.Credentials)
-	req.Header.Set("sk-game-role", account.SkGameRole)
-	req.Header.Set("platform", platform)
-	req.Header.Set("vName", vName)
-	req.Header.Set("timestamp", timestamp)
-	req.Header.Set("sign", sign)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("sk-language", "en")
-
-	if cfg.DebugMode {
-		log.Printf("[DEBUG] POST %s", baseURL+claimURL)
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var result struct {
-		Code    int64  `json:"code"`
-		Message string `json:"message"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, err
-	}
-
-	switch result.Code {
+	switch resp.Code {
 	case 0:
-		return &report.Report{
+		rep := &report.Report{
 			WasClaimed: true,
-		}, nil
+		}
+
+		result, err := requestAttendance(&client, "GET", ua, token, cfg, account)
+		if err != nil {
+			// while this is an error we already claimed so just report without rewards
+			log.Printf("error while trying to check rewards: %s", err)
+			return rep, nil
+		}
+
+		if resource := result.findReward(); resource != nil {
+			rep.Reward = &report.Reward{
+				Name:  resource.Name,
+				Count: resource.Count,
+				Image: resource.Icon,
+			}
+		}
+
+		return rep, nil
 	case 10001:
 		return &report.Report{
 			WasClaimed: false,
 		}, nil
 	default:
-		return nil, fmt.Errorf("api error: %s (code %d)", result.Message, result.Code)
+		return nil, fmt.Errorf("api error: %s (code %d)", resp.Message, resp.Code)
 	}
 }
 
@@ -130,4 +159,42 @@ func generateSign(path, body, timestamp, token string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(hmacHex))
 	return hex.EncodeToString(hasher.Sum(nil))
+}
+
+func requestAttendance(client *http.Client, method, ua, token string, cfg *config.Config, account *config.Account) (*attendanceResponse, error) {
+	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+	sign := generateSign(claimURL, "", timestamp, token)
+
+	req, err := http.NewRequest(method, baseURL+claimURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("User-Agent", ua)
+	req.Header.Set("cred", account.Credentials)
+	req.Header.Set("sk-game-role", account.SkGameRole)
+	req.Header.Set("platform", platform)
+	req.Header.Set("vName", vName)
+	req.Header.Set("timestamp", timestamp)
+	req.Header.Set("sign", sign)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("sk-language", "en")
+
+	if cfg.DebugMode {
+		log.Printf("[DEBUG] POST %s", baseURL+claimURL)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var result attendanceResponse
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
