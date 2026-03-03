@@ -14,6 +14,7 @@ import (
 
 	"github.com/atomicptr/pity-patrol/pkgs/config"
 	"github.com/atomicptr/pity-patrol/pkgs/constants"
+	"github.com/atomicptr/pity-patrol/pkgs/report"
 )
 
 const (
@@ -24,7 +25,7 @@ const (
 	vName      = "1.0.0"
 )
 
-func Claim(cfg *config.Config, account *config.Account) (bool, error) {
+func Claim(cfg *config.Config, account *config.Account) (*report.Report, error) {
 	ua := cfg.UserAgent
 	if ua == "" {
 		ua = constants.UserAgent
@@ -39,7 +40,7 @@ func Claim(cfg *config.Config, account *config.Account) (bool, error) {
 
 	req, err := http.NewRequest("POST", baseURL+claimURL, nil)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	req.Header.Set("User-Agent", ua)
@@ -58,7 +59,7 @@ func Claim(cfg *config.Config, account *config.Account) (bool, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
@@ -67,16 +68,20 @@ func Claim(cfg *config.Config, account *config.Account) (bool, error) {
 		Message string `json:"message"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return false, err
+		return nil, err
 	}
 
 	switch result.Code {
 	case 0:
-		return true, nil
+		return &report.Report{
+			WasClaimed: true,
+		}, nil
 	case 10001:
-		return false, nil
+		return &report.Report{
+			WasClaimed: false,
+		}, nil
 	default:
-		return false, fmt.Errorf("api error: %s (code %d)", result.Message, result.Code)
+		return nil, fmt.Errorf("api error: %s (code %d)", result.Message, result.Code)
 	}
 }
 

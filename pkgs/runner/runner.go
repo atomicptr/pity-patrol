@@ -8,6 +8,7 @@ import (
 
 	"github.com/atomicptr/pity-patrol/pkgs/claimer"
 	"github.com/atomicptr/pity-patrol/pkgs/config"
+	"github.com/atomicptr/pity-patrol/pkgs/report/reporter"
 )
 
 func Run(cfg *config.Config) {
@@ -23,13 +24,24 @@ func RunAccount(cfg *config.Config, index int, account *config.Account) {
 
 	log.Printf("%s claiming...", identifier)
 
-	claimed, err := claimer.Claim(cfg, account)
+	rep, err := claimer.Claim(cfg, account)
 	if err != nil {
-		log.Printf("%s could not claim rewards because: %s\n", identifier, err)
+		message := fmt.Sprintf("%s could not claim rewards because: %s", identifier, err)
+		log.Println(message)
+
+		err := reporter.SendError(cfg, account, message)
+		if err != nil {
+			log.Printf("error when sending error: %s", err)
+		}
 		return
 	}
 
-	if !claimed {
+	err = reporter.Send(cfg, account, rep)
+	if err != nil {
+		log.Printf("error when sending report: %s", err)
+	}
+
+	if !rep.WasClaimed {
 		log.Printf("%s has already claimed reward\n", identifier)
 		return
 	}

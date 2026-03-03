@@ -54,6 +54,14 @@ identifier = "My ZZZ"
 
 # The hoyo games all use `cookie`
 cookie = "mi18nLang=...; ltuid_v2=...; ltoken_v2=v2_..."
+
+# adding a reporter to send you messages
+[[reporters]]
+type = "discord"
+on = ["success", "failure"] # send us both messages on success and on failure
+
+# discord only
+webhook-url = "..." # add your discord webhook url for a channel
 ```
 
 ### Configuration Location

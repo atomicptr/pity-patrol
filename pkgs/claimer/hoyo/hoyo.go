@@ -7,10 +7,11 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/atomicptr/pity-patrol/pkgs/config"
 	"github.com/atomicptr/pity-patrol/pkgs/constants"
-	"github.com/atomicptr/pity-patrol/pkgs/util"
+	"github.com/atomicptr/pity-patrol/pkgs/report"
 )
 
 const loginBaseUrl = "https://act.hoyolab.com"
@@ -58,33 +59,35 @@ var games = map[string]gameConfig{
 	},
 }
 
-func Claim(cfg *config.Config, account *config.Account) (bool, error) {
+func Claim(cfg *config.Config, account *config.Account) (*report.Report, error) {
 	data, ok := games[account.Type]
 	if !ok {
-		return false, fmt.Errorf("unknown hoyo game: %s", account.Type)
+		return nil, fmt.Errorf("unknown hoyo game: %s", account.Type)
 	}
 
 	client := http.Client{Timeout: constants.DefaultTimeoutSecs}
 
 	info, err := getSignInInfo(&client, cfg, account, &data)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	// already signed in
 	if info.IsSign {
-		return false, nil
+		return &report.Report{
+			WasClaimed: false,
+		}, nil
 	}
 
 	if info.FirstBind {
-		return false, fmt.Errorf("account hasn't signed in yet, please sign in manually at least once")
+		return nil, fmt.Errorf("account hasn't signed in yet, please sign in manually at least once")
 	}
 
 	totalSignInDay := info.TotalSignDay
 
 	awards, err := getAwards(&client, cfg, account, &data)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	if cfg.DebugMode {
@@ -93,47 +96,54 @@ func Claim(cfg *config.Config, account *config.Account) (bool, error) {
 
 	res, err := performCheckIn(&client, cfg, account, &data)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	switch res.RetCode {
 	case retCodeSuccess:
 		// success! Do nothing
 	case retCodeNotLoggedIn:
-		return false, fmt.Errorf("you're not logged in, please log into %s and replace the cookie in the config with a new value", data.LoginUrl)
+		return nil, fmt.Errorf("you're not logged in, please log into %s and replace the cookie in the config with a new value", data.LoginUrl)
 	case retCodeAlreadySignedIn:
-		return false, nil
+		return &report.Report{
+			WasClaimed: false,
+		}, nil
 	default:
-		return false, fmt.Errorf("server returned an error: %s", res.Message)
+		return nil, fmt.Errorf("server returned an error: %s", res.Message)
 	}
-
-	log.Println(util.ToPrettyString(res))
 
 	info, err = getSignInInfo(&client, cfg, account, &data)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	newTotalSignInDay := info.TotalSignDay
 
 	// sign in wasnt successful
 	if !info.IsSign || newTotalSignInDay == totalSignInDay {
-		return false, fmt.Errorf("could not automatically check-in, please sign into the website manually: %s", data.LoginUrl)
+		return nil, fmt.Errorf("could not automatically check-in, please sign into the website manually: %s", data.LoginUrl)
 	}
 
 	if isCaptchaRequired(res) {
-		return false, fmt.Errorf("captcha is required, please sign into the website: %s", data.LoginUrl)
+		return nil, fmt.Errorf("captcha is required, please sign into the website: %s", data.LoginUrl)
 	}
 
 	reward := awards[newTotalSignInDay-1]
 
-	if cfg.DebugMode {
-		log.Printf("[DEBUG] Total Sign-In Days: %d\n", newTotalSignInDay)
-		log.Printf("[DEBUG] Reward: %dx %s\n", reward.Count, reward.Name)
-		log.Printf("[DEBUG] Message: %s\n", res.Message)
-	}
-
-	return true, nil
+	return &report.Report{
+		WasClaimed: true,
+		Reward: &report.Reward{
+			Name:  reward.Name,
+			Count: reward.Count,
+			Image: reward.Icon,
+		},
+		CustomFields: []report.Field{
+			{
+				Key:   "Total Sign-In Days",
+				Value: strconv.Itoa(newTotalSignInDay),
+			},
+		},
+	}, nil
 }
 
 type captchaData struct {
@@ -231,6 +241,7 @@ type awardResponse struct {
 type award struct {
 	Name  string `json:"name"`
 	Count int    `json:"cnt"`
+	Icon  string `json:"icon"`
 }
 
 func getAwards(client *http.Client, cfg *config.Config, account *config.Account, data *gameConfig) ([]award, error) {
