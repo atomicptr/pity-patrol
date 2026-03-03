@@ -3,6 +3,7 @@ package discord
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -48,13 +49,8 @@ func Send(reporter *config.Reporter, cfg *config.Config, account *config.Account
 	// add reward infos if available
 	if r.Reward != nil {
 		fields = append(fields, map[string]any{
-			"name":  "Name",
-			"value": r.Reward.Name,
-		})
-
-		fields = append(fields, map[string]any{
-			"name":  "Count",
-			"value": r.Reward.Count,
+			"name":  "Reward",
+			"value": fmt.Sprintf("%dx %s", r.Reward.Count, r.Reward.Name),
 		})
 
 		if r.Reward.Image != "" {
