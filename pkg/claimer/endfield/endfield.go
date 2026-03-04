@@ -15,6 +15,7 @@ import (
 	"github.com/atomicptr/pity-patrol/pkg/config"
 	"github.com/atomicptr/pity-patrol/pkg/constants"
 	"github.com/atomicptr/pity-patrol/pkg/report"
+	"github.com/atomicptr/pity-patrol/pkg/util"
 )
 
 const (
@@ -74,9 +75,12 @@ func Claim(cfg *config.Config, account *config.Account) (*report.Report, error) 
 		ua = constants.UserAgent
 	}
 
-	client := http.Client{Timeout: constants.DefaultTimeoutSecs}
+	client := http.Client{Timeout: constants.DefaultTimeout}
 
 	token, err := refreshToken(&client, account.Credentials, ua)
+	if err != nil {
+		return nil, err
+	}
 
 	resp, err := requestAttendance(&client, "POST", ua, token, cfg, account)
 	if err != nil {
@@ -125,7 +129,7 @@ func refreshToken(client *http.Client, credentials, ua string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer util.LogError(resp.Body.Close())
 
 	var res struct {
 		Code int64 `json:"code"`
@@ -188,7 +192,7 @@ func requestAttendance(client *http.Client, method, ua, token string, cfg *confi
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer util.LogError(resp.Body.Close())
 
 	var result attendanceResponse
 

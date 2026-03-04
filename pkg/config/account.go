@@ -30,7 +30,7 @@ type Game struct {
 }
 
 func (a *Account) GameName() string {
-	switch a.Game.Type {
+	switch a.Type {
 	case "endfield":
 		return "Arknights: Endfield"
 	case "genshin":
@@ -44,6 +44,6 @@ func (a *Account) GameName() string {
 	case "themis":
 		return "Tears of Thermis"
 	default:
-		panic(fmt.Sprintf("Unknown game type: %s", a.Game.Type))
+		panic(fmt.Sprintf("Unknown game type: %s", a.Type))
 	}
 }

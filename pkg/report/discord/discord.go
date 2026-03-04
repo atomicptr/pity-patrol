@@ -12,6 +12,7 @@ import (
 	"github.com/atomicptr/pity-patrol/pkg/config"
 	"github.com/atomicptr/pity-patrol/pkg/constants"
 	"github.com/atomicptr/pity-patrol/pkg/report"
+	"github.com/atomicptr/pity-patrol/pkg/util"
 )
 
 const colorSuccess = 4431943
@@ -115,7 +116,7 @@ func SendError(reporter *config.Reporter, cfg *config.Config, account *config.Ac
 }
 
 func sendToDiscord(payload map[string]any, reporter *config.Reporter, cfg *config.Config) error {
-	client := http.Client{Timeout: constants.DefaultTimeoutSecs}
+	client := http.Client{Timeout: constants.DefaultTimeout}
 
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -133,7 +134,7 @@ func sendToDiscord(payload map[string]any, reporter *config.Reporter, cfg *confi
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer util.LogError(resp.Body.Close())
 
 	if cfg.DebugMode {
 		body, err := io.ReadAll(resp.Body)

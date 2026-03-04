@@ -12,6 +12,7 @@ import (
 	"github.com/atomicptr/pity-patrol/pkg/config"
 	"github.com/atomicptr/pity-patrol/pkg/constants"
 	"github.com/atomicptr/pity-patrol/pkg/report"
+	"github.com/atomicptr/pity-patrol/pkg/util"
 )
 
 const loginBaseUrl = "https://act.hoyolab.com"
@@ -65,7 +66,7 @@ func Claim(cfg *config.Config, account *config.Account) (*report.Report, error) 
 		return nil, fmt.Errorf("unknown hoyo game: %s", account.Type)
 	}
 
-	client := http.Client{Timeout: constants.DefaultTimeoutSecs}
+	client := http.Client{Timeout: constants.DefaultTimeout}
 
 	info, err := getSignInInfo(&client, cfg, account, &data)
 	if err != nil {
@@ -197,7 +198,7 @@ func hoyoRequest(client *http.Client, method string, url string, body []byte, cf
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer util.LogError(res.Body.Close())
 
 	blob, err := io.ReadAll(res.Body)
 	if err != nil {

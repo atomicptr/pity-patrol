@@ -16,7 +16,7 @@ func Run() error {
 	log.Printf("Pity Patrol %s\n", meta.VersionString())
 
 	if os.Getenv("GITHUB_ACTIONS") != "" || os.Getenv("GITLAB_CI") != "" {
-		return fmt.Errorf("Unauthorized environment")
+		return fmt.Errorf("unauthorized environment")
 	}
 
 	cfg, err := config.Load()
