@@ -5,11 +5,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/atomicptr/pity-patrol/pkgs/config"
-	"github.com/atomicptr/pity-patrol/pkgs/meta"
-	"github.com/atomicptr/pity-patrol/pkgs/runner"
-	"github.com/atomicptr/pity-patrol/pkgs/runner/scheduler"
-	"github.com/atomicptr/pity-patrol/pkgs/util"
+	"github.com/atomicptr/pity-patrol/pkg/config"
+	"github.com/atomicptr/pity-patrol/pkg/meta"
+	"github.com/atomicptr/pity-patrol/pkg/runner"
+	"github.com/atomicptr/pity-patrol/pkg/runner/scheduler"
+	"github.com/atomicptr/pity-patrol/pkg/util"
 )
 
 func Run() error {

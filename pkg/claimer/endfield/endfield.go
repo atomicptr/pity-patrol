@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/atomicptr/pity-patrol/pkgs/config"
-	"github.com/atomicptr/pity-patrol/pkgs/constants"
-	"github.com/atomicptr/pity-patrol/pkgs/report"
+	"github.com/atomicptr/pity-patrol/pkg/config"
+	"github.com/atomicptr/pity-patrol/pkg/constants"
+	"github.com/atomicptr/pity-patrol/pkg/report"
 )
 
 const (

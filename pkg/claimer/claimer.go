@@ -3,10 +3,10 @@ package claimer
 import (
 	"fmt"
 
-	"github.com/atomicptr/pity-patrol/pkgs/claimer/endfield"
-	"github.com/atomicptr/pity-patrol/pkgs/claimer/hoyo"
-	"github.com/atomicptr/pity-patrol/pkgs/config"
-	"github.com/atomicptr/pity-patrol/pkgs/report"
+	"github.com/atomicptr/pity-patrol/pkg/claimer/endfield"
+	"github.com/atomicptr/pity-patrol/pkg/claimer/hoyo"
+	"github.com/atomicptr/pity-patrol/pkg/config"
+	"github.com/atomicptr/pity-patrol/pkg/report"
 )
 
 func Claim(cfg *config.Config, account *config.Account) (*report.Report, error) {

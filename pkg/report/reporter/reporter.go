@@ -3,9 +3,9 @@ package reporter
 import (
 	"log"
 
-	"github.com/atomicptr/pity-patrol/pkgs/config"
-	"github.com/atomicptr/pity-patrol/pkgs/report"
-	"github.com/atomicptr/pity-patrol/pkgs/report/discord"
+	"github.com/atomicptr/pity-patrol/pkg/config"
+	"github.com/atomicptr/pity-patrol/pkg/report"
+	"github.com/atomicptr/pity-patrol/pkg/report/discord"
 )
 
 func Send(cfg *config.Config, account *config.Account, r *report.Report) error {
