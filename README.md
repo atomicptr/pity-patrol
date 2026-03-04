@@ -9,12 +9,14 @@ A tool to help you claim web based daily login rewards for your favorite gacha g
 
 ## Supported Games
 
-- [Arknights: Endfield](https://endfield.gryphline.com)
-- [Genshin Impact](https://genshin.hoyoverse.com)
-- [Honkai Starrail](https://hsr.hoyoverse.com)
-- [Honkai Impact 3rd](https://honkaiimpact3.hoyoverse.com)
-- [Zenless Zone Zero](https://zenless.hoyoverse.com)
-- [Tears of Themis](https://tot.hoyoverse.com)
+- [Arknights: Endfield](https://endfield.gryphline.com) - ``endfield``
+- [Genshin Impact](https://genshin.hoyoverse.com) - ``genshin``
+- [Honkai Starrail](https://hsr.hoyoverse.com) - ``starrail``
+- [Honkai Impact 3rd](https://honkaiimpact3.hoyoverse.com) - ``honkai``
+- [Zenless Zone Zero](https://zenless.hoyoverse.com) - ``zzz``
+- [Tears of Themis](https://tot.hoyoverse.com) - ``themis``
+
+**Note**: Remember the identifier at the end that is the game name you'll use in the configuration later
 
 ## Install
 
