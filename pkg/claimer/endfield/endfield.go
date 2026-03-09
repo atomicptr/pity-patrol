@@ -1,6 +1,7 @@
 package endfield
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha256"
@@ -129,7 +130,17 @@ func refreshToken(client *http.Client, credentials, ua string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer util.LogError(resp.Body.Close())
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			log.Printf("error when closing body: %s\n", err)
+		}
+	}()
+
+	body, err := util.ReadBody(resp, nil)
+	if err != nil {
+		return "", err
+	}
 
 	var res struct {
 		Code int64 `json:"code"`
@@ -139,7 +150,7 @@ func refreshToken(client *http.Client, credentials, ua string) (string, error) {
 		Message string `json:"message"`
 	}
 
-	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&res); err != nil {
 		return "", err
 	}
 
@@ -192,11 +203,22 @@ func requestAttendance(client *http.Client, method, ua, token string, cfg *confi
 	if err != nil {
 		return nil, err
 	}
-	defer util.LogError(resp.Body.Close())
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			log.Printf("error when closing body: %s\n", err)
+		}
+	}()
+
+	// server responds 403 when already claimed
+	body, err := util.ReadBody(resp, []int{http.StatusForbidden})
+	if err != nil {
+		return nil, err
+	}
 
 	var result attendanceResponse
 
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&result); err != nil {
 		return nil, err
 	}
 

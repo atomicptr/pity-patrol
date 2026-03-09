@@ -12,7 +12,6 @@ import (
 	"github.com/atomicptr/pity-patrol/pkg/config"
 	"github.com/atomicptr/pity-patrol/pkg/constants"
 	"github.com/atomicptr/pity-patrol/pkg/report"
-	"github.com/atomicptr/pity-patrol/pkg/util"
 )
 
 const colorSuccess = 4431943
@@ -134,7 +133,12 @@ func sendToDiscord(payload map[string]any, reporter *config.Reporter, cfg *confi
 	if err != nil {
 		return err
 	}
-	defer util.LogError(resp.Body.Close())
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			log.Printf("error when closing body: %s\n", err)
+		}
+	}()
 
 	if cfg.DebugMode {
 		body, err := io.ReadAll(resp.Body)

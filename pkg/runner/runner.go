@@ -13,10 +13,7 @@ import (
 
 func Run(cfg *config.Config) {
 	for index, account := range cfg.Accounts {
-		err := RunAccount(cfg, index, &account)
-		if err != nil {
-			log.Printf("%s failed, will retry later...\n", AccountIdentifier(&account, index))
-		}
+		_ = RunAccount(cfg, index, &account)
 		SleepMs(500, 2000)
 	}
 }

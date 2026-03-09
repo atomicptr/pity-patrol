@@ -198,9 +198,14 @@ func hoyoRequest(client *http.Client, method string, url string, body []byte, cf
 	if err != nil {
 		return nil, err
 	}
-	defer util.LogError(res.Body.Close())
+	defer func() {
+		err := res.Body.Close()
+		if err != nil {
+			log.Printf("error when closing body: %s\n", err)
+		}
+	}()
 
-	blob, err := io.ReadAll(res.Body)
+	blob, err := util.ReadBody(res, nil)
 	if err != nil {
 		return nil, err
 	}
