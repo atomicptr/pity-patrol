@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/atomicptr/pity-patrol/pkg/config"
+	"github.com/atomicptr/pity-patrol/pkg/constants"
 	"github.com/atomicptr/pity-patrol/pkg/runner"
 	"github.com/netresearch/go-cron"
 )
@@ -36,7 +37,12 @@ func Run(cfg *config.Config) {
 
 		_, err := c.AddFunc(cronString, func() {
 			runner.SleepMs(5000, 60_000) // sleep 5s - 60s
-			runner.RunAccount(cfg, index, &account)
+
+			err := runner.RunAccount(cfg, index, &account)
+			if err != nil {
+				log.Printf("%s failed, will retry later...\n", runner.AccountIdentifier(&account, index))
+				retryClaim(cfg, index, &account)
+			}
 		})
 
 		if err != nil {
@@ -78,6 +84,20 @@ func startHeartbeat(c *cron.Cron) {
 
 		if next != nil {
 			log.Printf("Scheduler: Next scheduled job runs at %s", next.Next.Format("2006-01-02 15:04:05"))
+		}
+	}
+}
+
+func retryClaim(cfg *config.Config, index int, account *config.Account) {
+	for attempt := 0; attempt < constants.MaxClaimRetries; attempt += 1 {
+		// sleep for delay time
+		time.Sleep(constants.ClaimRetryDelay)
+
+		log.Printf("Retry Attempt #%d for %s\n", attempt+1, runner.AccountIdentifier(account, index))
+
+		err := runner.RunAccount(cfg, index, account)
+		if err == nil {
+			break
 		}
 	}
 }

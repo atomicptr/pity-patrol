@@ -13,19 +13,22 @@ import (
 
 func Run(cfg *config.Config) {
 	for index, account := range cfg.Accounts {
-		RunAccount(cfg, index, &account)
-
+		err := RunAccount(cfg, index, &account)
+		if err != nil {
+			log.Printf("%s failed, will retry later...\n", AccountIdentifier(&account, index))
+		}
 		SleepMs(500, 2000)
 	}
 }
 
-func RunAccount(cfg *config.Config, index int, account *config.Account) {
+func RunAccount(cfg *config.Config, index int, account *config.Account) error {
 	identifier := AccountIdentifier(account, index)
 
 	log.Printf("%s claiming...", identifier)
 
 	rep, err := claimer.Claim(cfg, account)
 	if err != nil {
+		origErr := err
 		message := fmt.Sprintf("%s could not claim rewards because: %s", identifier, err)
 		log.Println(message)
 
@@ -33,7 +36,7 @@ func RunAccount(cfg *config.Config, index int, account *config.Account) {
 		if err != nil {
 			log.Printf("error when sending error: %s", err)
 		}
-		return
+		return origErr
 	}
 
 	err = reporter.Send(cfg, account, rep)
@@ -43,10 +46,12 @@ func RunAccount(cfg *config.Config, index int, account *config.Account) {
 
 	if !rep.WasClaimed {
 		log.Printf("%s has already claimed reward\n", identifier)
-		return
+		return nil
 	}
 
 	log.Printf("%s claimed reward successfully\n", identifier)
+
+	return nil
 }
 
 func AccountIdentifier(account *config.Account, index int) string {
