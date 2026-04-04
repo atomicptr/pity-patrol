@@ -6,9 +6,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/atomicptr/pity-patrol/pkg/claimer"
-	"github.com/atomicptr/pity-patrol/pkg/config"
-	"github.com/atomicptr/pity-patrol/pkg/report/reporter"
+	"atomicptr.dev/pity-patrol/pkg/claimer"
+	"atomicptr.dev/pity-patrol/pkg/config"
+	"atomicptr.dev/pity-patrol/pkg/report/reporter"
 )
 
 func Run(cfg *config.Config) {

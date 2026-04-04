@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/atomicptr/pity-patrol/pkg/config"
-	"github.com/atomicptr/pity-patrol/pkg/constants"
-	"github.com/atomicptr/pity-patrol/pkg/report"
-	"github.com/atomicptr/pity-patrol/pkg/util"
+	"atomicptr.dev/pity-patrol/pkg/config"
+	"atomicptr.dev/pity-patrol/pkg/constants"
+	"atomicptr.dev/pity-patrol/pkg/report"
+	"atomicptr.dev/pity-patrol/pkg/util"
 )
 
 const loginBaseUrl = "https://act.hoyolab.com"

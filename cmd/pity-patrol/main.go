@@ -1,6 +1,6 @@
 package main
 
-import "github.com/atomicptr/pity-patrol/pkg/cli"
+import "atomicptr.dev/pity-patrol/pkg/cli"
 
 func main() {
 	err := cli.Run()

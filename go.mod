@@ -1,4 +1,4 @@
-module github.com/atomicptr/pity-patrol
+module atomicptr.dev/pity-patrol
 
 go 1.25.7
 

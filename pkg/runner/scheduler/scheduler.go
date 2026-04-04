@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/atomicptr/pity-patrol/pkg/config"
-	"github.com/atomicptr/pity-patrol/pkg/constants"
-	"github.com/atomicptr/pity-patrol/pkg/runner"
+	"atomicptr.dev/pity-patrol/pkg/config"
+	"atomicptr.dev/pity-patrol/pkg/constants"
+	"atomicptr.dev/pity-patrol/pkg/runner"
 	"github.com/netresearch/go-cron"
 )
 
