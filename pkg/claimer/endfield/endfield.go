@@ -186,6 +186,12 @@ func requestAttendance(client *http.Client, method, ua, token string, cfg *confi
 	}
 
 	req.Header.Set("User-Agent", ua)
+	req.Header.Set("Accept", "*/*")
+	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br, zstd")
+	req.Header.Set("Referer", "https://game.skport.com/")
+	req.Header.Set("Origin", "https://game.skport.com")
+
 	req.Header.Set("cred", account.Credentials)
 	req.Header.Set("sk-game-role", account.SkGameRole)
 	req.Header.Set("platform", platform)
