@@ -222,6 +222,10 @@ func requestAttendance(client *http.Client, method, ua, token string, cfg *confi
 		return nil, err
 	}
 
+	if cfg.DebugMode {
+		log.Printf("[DEBUG] Endfield claim response: %s\n", body)
+	}
+
 	var result attendanceResponse
 
 	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&result); err != nil {

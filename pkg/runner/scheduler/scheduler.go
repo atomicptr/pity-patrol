@@ -89,7 +89,7 @@ func startHeartbeat(c *cron.Cron) {
 }
 
 func retryClaim(cfg *config.Config, index int, account *config.Account) {
-	for attempt := 0; attempt < constants.MaxClaimRetries; attempt += 1 {
+	for attempt := range constants.MaxClaimRetries {
 		// sleep for delay time
 		time.Sleep(constants.ClaimRetryDelay)
 
